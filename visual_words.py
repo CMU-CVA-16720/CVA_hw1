@@ -28,9 +28,10 @@ def extract_filter_responses(opts, img):
     else:
     	is_gray = False
     # Massage image
-    img = skimage.color.rgb2lab(img)
     if(np.max(img)>1.0):
-    	img = img / np.max(img)
+        img = img / np.max(img)
+    img = skimage.color.rgb2lab(img)
+    
     filter_scales = opts.filter_scales
     # Output will be W x H x Z
     # Z = 3 * 4 * len(opts.filter_scales)
@@ -86,6 +87,9 @@ def compute_dictionary(opts, n_worker=1):
     out_dir = opts.out_dir
     K = opts.K
     alpha = opts.alpha
+
+    # Seed for consistent random rows + cols, for repeatability to tune hyperparameters
+    np.random.seed(0)
 
     train_files = open(join(data_dir, 'train_files.txt')).read().splitlines()
 #    train_files = open(join(data_dir, 'train_files_lite.txt')).read().splitlines()
