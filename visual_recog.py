@@ -137,7 +137,7 @@ def build_recognition_system(opts, n_worker=1):
     features = np.zeros([len(train_files),int(opts.K*(4**(opts.L+1)-1)/3)])
     for i,train_file in enumerate(train_files):
     	# Debug: print progress
-    	print("Training {}/{}".format(i+1,len(train_files)))
+#    	print("Training {}/{}".format(i+1,len(train_files)))
     	# Get image path, then compute feature
     	img_path = join(opts.data_dir, train_file)
     	features[i,:] = get_image_feature(opts,img_path,dictionary)
@@ -212,7 +212,7 @@ def evaluate_recognition_system(opts, n_worker=1):
     	# Update confusion matrix
     	C[actual,predicted] += 1
     	# Debug: print progress
-    	print("Testing {}/{}, {}% ({}/{})".format(i+1,len(test_files),
+#    	print("Testing {}/{}, {}% ({}/{})".format(i+1,len(test_files),
     	100*np.trace(C)/np.sum(C),int(np.trace(C)),int(np.sum(C))))
     # Accuracy: tr(C)/sum(C)
     accuracy = np.trace(C)/np.sum(C)
