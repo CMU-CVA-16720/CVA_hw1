@@ -213,7 +213,7 @@ def evaluate_recognition_system(opts, n_worker=1):
     	C[actual,predicted] += 1
     	# Debug: print progress
 #    	print("Testing {}/{}, {}% ({}/{})".format(i+1,len(test_files),
-    	100*np.trace(C)/np.sum(C),int(np.trace(C)),int(np.sum(C))))
+#    	100*np.trace(C)/np.sum(C),int(np.trace(C)),int(np.sum(C))))
     # Accuracy: tr(C)/sum(C)
     accuracy = np.trace(C)/np.sum(C)
     print("\nFinal: {}% ({}/{})".format(100*np.trace(C)/np.sum(C),

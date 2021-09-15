@@ -98,7 +98,7 @@ def compute_dictionary(opts, n_worker=1):
     for ind,img_path in enumerate(train_files):
     	# Prepend data directory
     	img_path = data_dir+"/"+img_path
-    	print("Dictionary {}/{}: {}".format(ind+1,len(train_files),img_path))
+#    	print("Dictionary {}/{}: {}".format(ind+1,len(train_files),img_path))
     	img = Image.open(img_path)
     	img = np.array(img).astype(np.float32)/255
     	# helper fills filter_responses[ind*alpha:(ind+1)*alpha-1,:]
@@ -106,7 +106,7 @@ def compute_dictionary(opts, n_worker=1):
     # Compute k-means
     kmeans = KMeans(n_clusters=K,n_jobs=n_worker).fit(filter_responses)
     dictionary = kmeans.cluster_centers_
-    print("Dictionary size: {}".format(dictionary.shape))
+#    print("Dictionary size: {}".format(dictionary.shape))
 
     ## example code snippet to save the dictionary
     np.save(join(out_dir, 'dictionary.npy'), dictionary)

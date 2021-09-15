@@ -12,6 +12,8 @@ from opts import get_opts
 
 def main():
     opts = get_opts()
+    print("K = {}, L = {}, alpha = {}, scales = {}".format(opts.K, opts.L, opts.alpha,
+        opts.filter_scales))
 
     ## Q1.1
     # Gaussian blurs the image
@@ -38,7 +40,7 @@ def main():
     img = Image.open(img_path)
     img = np.array(img).astype(np.float32)/255
     dictionary = np.load(join(opts.out_dir, 'dictionary.npy'))
-    print("Dictionary shape: {}".format(dictionary.shape))
+#    print("Dictionary shape: {}".format(dictionary.shape))
     wordmap = visual_words.get_visual_words(opts, img, dictionary)
 
     # Forcing wordmap to certain values for testing
