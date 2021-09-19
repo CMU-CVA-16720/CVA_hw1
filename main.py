@@ -42,6 +42,7 @@ def main():
     dictionary = np.load(join(opts.out_dir, 'dictionary.npy'))
 #    print("Dictionary shape: {}".format(dictionary.shape))
     wordmap = visual_words.get_visual_words(opts, img, dictionary)
+#    util.visualize_wordmap(wordmap)
 
     # Forcing wordmap to certain values for testing
 #    for i in range(0,10):
