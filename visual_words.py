@@ -98,7 +98,7 @@ def compute_dictionary(opts, n_worker=1):
         # helper fills filter_responses[ind*alpha:(ind+1)*alpha-1,:]
         filter_responses[ind*alpha:(ind+1)*alpha,:] = compute_dictionary_one_image(img,opts)
     # Compute k-means
-    kmeans = KMeans(n_clusters=K,n_jobs=n_worker).fit(filter_responses)
+    kmeans = KMeans(n_clusters=K,n_jobs=n_worker,n_init=100).fit(filter_responses)
     dictionary = kmeans.cluster_centers_
 #    print("Dictionary size: {}".format(dictionary.shape))
 
