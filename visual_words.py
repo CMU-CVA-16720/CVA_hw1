@@ -20,13 +20,10 @@ def extract_filter_responses(opts, img):
     '''
     # Create 3 channels for gray-scale images
     if len(img.shape) < 3:
-    	is_gray = True
     	temp = np.zeros(img.shape[0:2] + (3,))
     	for i in range(0,3):
     		temp[:,:,i] = img
     	img = temp
-    else:
-    	is_gray = False
     # Massage image
     if(np.max(img)>1.0):
         img = img / np.max(img)
@@ -35,27 +32,27 @@ def extract_filter_responses(opts, img):
     filter_scales = opts.filter_scales
     # Output will be W x H x Z
     # Z = 3 * 4 * len(opts.filter_scales)
-    output = np.zeros(img.shape[0:2] + (3*4*len(opts.filter_scales),))
+    filter_responses = np.zeros(img.shape[0:2] + (3*4*len(opts.filter_scales),))
     # Loop through sizes
     mode = 'reflect'
     for ind,sigma in enumerate(opts.filter_scales):
     	cursor = ind * 4 * 3
     	# Gaussian
     	for j in range(0,3):
-    		output[:,:,cursor+j] = scipy.ndimage.gaussian_filter(img[:,:,j],sigma,mode=mode)
+    		filter_responses[:,:,cursor+j] = scipy.ndimage.gaussian_filter(img[:,:,j],sigma,mode=mode)
     	# LoG
     	cursor += j+1
     	for j in range(0,3):
-    		output[:,:,cursor+j] = scipy.ndimage.gaussian_laplace(img[:,:,j],sigma,mode=mode)
+    		filter_responses[:,:,cursor+j] = scipy.ndimage.gaussian_laplace(img[:,:,j],sigma,mode=mode)
     	# dx
     	cursor += j+1
     	for j in range(0,3):
-    		output[:,:,cursor+j] = scipy.ndimage.gaussian_filter(img[:,:,j],sigma,[0,1],mode=mode)
+    		filter_responses[:,:,cursor+j] = scipy.ndimage.gaussian_filter(img[:,:,j],sigma,[0,1],mode=mode)
  	# dy
     	cursor += j+1
     	for j in range(0,3):
-    		output[:,:,cursor+j] = scipy.ndimage.gaussian_filter(img[:,:,j],sigma,[1,0],mode=mode)
-    return output
+    		filter_responses[:,:,cursor+j] = scipy.ndimage.gaussian_filter(img[:,:,j],sigma,[1,0],mode=mode)
+    return filter_responses
 
 def compute_dictionary_one_image(img,opts):
     '''
