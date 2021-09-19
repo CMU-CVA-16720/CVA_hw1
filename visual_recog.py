@@ -71,7 +71,7 @@ def get_feature_from_wordmap_SPM(opts, wordmap):
 #    print("last_layer sum: {}".format(np.sum(next_layer)))
     for l in reversed(range(0,L)):
     	current_layer = np.zeros([2**l,2**l,K])
-    	# Calculate current layer with weight
+    	# Calculate current layer without weight
     	for r in range(current_layer.shape[0]):
     		for c in range(current_layer.shape[1]):
     			current_layer[r,c] = next_layer[2*r,2*c] + next_layer[2*r,2*c+1] + next_layer[2*r+1,2*c] + next_layer[2*r+1,2*c+1]
