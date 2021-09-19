@@ -25,6 +25,8 @@ def main():
 #    img_path = join(opts.data_dir, 'aquarium/sun_aztvjgubyrgvirup.jpg')
     img = Image.open(img_path)
     img = np.array(img).astype(np.float32)/255
+#    plt.imshow(img)
+#    plt.show()
 #    img = img[:,:,0] # test grayscale pics
     filter_responses = visual_words.extract_filter_responses(opts, img)
 #    util.display_filter_responses(opts, filter_responses)
