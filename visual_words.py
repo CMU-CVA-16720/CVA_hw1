@@ -20,10 +20,10 @@ def extract_filter_responses(opts, img):
     '''
     # Create 3 channels for gray-scale images
     if len(img.shape) < 3:
-    	temp = np.zeros(img.shape[0:2] + (3,))
-    	for i in range(0,3):
-    		temp[:,:,i] = img
-    	img = temp
+        temp = np.zeros(img.shape[0:2] + (3,))
+        for i in range(0,3):
+            temp[:,:,i] = img
+        img = temp
     # Massage image
     if(np.max(img)>1.0):
         img = img / np.max(img)
@@ -36,22 +36,19 @@ def extract_filter_responses(opts, img):
     # Loop through sizes
     mode = 'reflect'
     for ind,sigma in enumerate(opts.filter_scales):
-    	cursor = ind * 4 * 3
-    	# Gaussian
-    	for j in range(0,3):
-    		filter_responses[:,:,cursor+j] = scipy.ndimage.gaussian_filter(img[:,:,j],sigma,mode=mode)
-    	# LoG
-    	cursor += j+1
-    	for j in range(0,3):
-    		filter_responses[:,:,cursor+j] = scipy.ndimage.gaussian_laplace(img[:,:,j],sigma,mode=mode)
-    	# dx
-    	cursor += j+1
-    	for j in range(0,3):
-    		filter_responses[:,:,cursor+j] = scipy.ndimage.gaussian_filter(img[:,:,j],sigma,[0,1],mode=mode)
- 	# dy
-    	cursor += j+1
-    	for j in range(0,3):
-    		filter_responses[:,:,cursor+j] = scipy.ndimage.gaussian_filter(img[:,:,j],sigma,[1,0],mode=mode)
+        cursor = ind * 4 * 3
+        # Gaussian
+        filter_responses[:,:,cursor:cursor+3] = scipy.ndimage.gaussian_filter(img,(sigma,sigma,0),mode=mode)
+        # LoG
+        cursor += 3
+        for j in range(0,3):
+            filter_responses[:,:,cursor+j] = scipy.ndimage.gaussian_laplace(img[:,:,j],sigma,mode=mode)
+        # dx
+        cursor += 3
+        filter_responses[:,:,cursor:cursor+3] = scipy.ndimage.gaussian_filter(img,(sigma,sigma,0),[0,1,0],mode=mode)
+        # dy
+        cursor += 3
+        filter_responses[:,:,cursor:cursor+3] = scipy.ndimage.gaussian_filter(img,(sigma,sigma,0),[1,0,0],mode=mode)
     return filter_responses
 
 def compute_dictionary_one_image(img,opts):
@@ -93,13 +90,13 @@ def compute_dictionary(opts, n_worker=1):
     # Create array to hold all filter responses (sample size * # sample images) x (3F)
     filter_responses = np.zeros([alpha * len(train_files), 3*4*len(opts.filter_scales)])
     for ind,img_path in enumerate(train_files):
-    	# Prepend data directory
-    	img_path = data_dir+"/"+img_path
-#    	print("Dictionary {}/{}: {}".format(ind+1,len(train_files),img_path))
-    	img = Image.open(img_path)
-    	img = np.array(img).astype(np.float32)/255
-    	# helper fills filter_responses[ind*alpha:(ind+1)*alpha-1,:]
-    	filter_responses[ind*alpha:(ind+1)*alpha,:] = compute_dictionary_one_image(img,opts)
+        # Prepend data directory
+        img_path = data_dir+"/"+img_path
+#        print("Dictionary {}/{}: {}".format(ind+1,len(train_files),img_path))
+        img = Image.open(img_path)
+        img = np.array(img).astype(np.float32)/255
+        # helper fills filter_responses[ind*alpha:(ind+1)*alpha-1,:]
+        filter_responses[ind*alpha:(ind+1)*alpha,:] = compute_dictionary_one_image(img,opts)
     # Compute k-means
     kmeans = KMeans(n_clusters=K,n_jobs=n_worker).fit(filter_responses)
     dictionary = kmeans.cluster_centers_
@@ -126,7 +123,7 @@ def get_visual_words(opts, img, dictionary):
     error = np.zeros([opts.K])
     # Loop each row
     for i,row in zip(range(0,img.shape[0]),response[:]):
-    	err_matrix = scipy.spatial.distance.cdist(row,dictionary)
-    	wordmap[i] = np.transpose(np.argmin(err_matrix,1))
+        err_matrix = scipy.spatial.distance.cdist(row,dictionary)
+        wordmap[i] = np.transpose(np.argmin(err_matrix,1))
     return wordmap
 
