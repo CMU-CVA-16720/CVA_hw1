@@ -141,11 +141,10 @@ def build_recognition_system(opts, n_worker=1):
         img_path = join(data_dir, train_file)
         arg_list.append((opts,img_path,dictionary))
     with multiprocessing.Pool() as p:
-        blah = p.starmap(get_image_feature,arg_list)
+        proc_output = p.starmap(get_image_feature,arg_list)
     # Unpack output
-    print(len(blah))
     for i in range(0,len(blah)):
-    	features[i,:] = blah[i]
+    	features[i,:] = proc_output[i]
     # Get SPM layer number
     SPM_layer_num = opts.L+1
 
