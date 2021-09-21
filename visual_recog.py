@@ -29,13 +29,13 @@ def split_ind(shape,layer,indr,indc):
     Splits total into several parts, returning range for one part
     
     [input]
-    * shape	: shape of image
-    * layer	: current pyramid layer
-    * indr	: row index of segment of interest
-    * indc	: col index of segment of interest
+    * shape    : shape of image
+    * layer    : current pyramid layer
+    * indr    : row index of segment of interest
+    * indc    : col index of segment of interest
     
     [output]
-    * rng	: tuple of row and col slices
+    * rng    : tuple of row and col slices
     '''
     row_rng = slice(shape[0]*indr//(2**layer),shape[0]*(indr+1)//(2**layer))
     col_rng = slice(shape[1]*indc//(2**layer),shape[1]*(indc+1)//(2**layer))
@@ -58,31 +58,31 @@ def get_feature_from_wordmap_SPM(opts, wordmap):
     # Calculate last layer first
     last_layer_hist = np.array([]) # top left -> top right -> bottom left -> bottom right
     for r in range(0,2**L):
-    	for c in range(0,2**L):
-    		wordmap_segment = wordmap[split_ind(wordmap.shape,L,r,c)]
-	    	last_layer_hist = np.append(last_layer_hist,get_feature_from_wordmap(opts,wordmap_segment))
+        for c in range(0,2**L):
+            wordmap_segment = wordmap[split_ind(wordmap.shape,L,r,c)]
+            last_layer_hist = np.append(last_layer_hist,get_feature_from_wordmap(opts,wordmap_segment))
     # Normalize & weigh last layer hist
     last_layer_hist /= np.sum(last_layer_hist)
     if(L>0):
-    	last_layer_hist /= 2
+        last_layer_hist /= 2
     # Calculate all other layers
     next_layer = np.reshape(last_layer_hist,[2**L,2**L,K])
     hist_all = last_layer_hist
 #    print("last_layer sum: {}".format(np.sum(next_layer)))
     for l in reversed(range(0,L)):
-    	current_layer = np.zeros([2**l,2**l,K])
-    	# Calculate current layer without weight
-    	for r in range(current_layer.shape[0]):
-    		for c in range(current_layer.shape[1]):
-    			current_layer[r,c] = next_layer[2*r,2*c] + next_layer[2*r,2*c+1] + next_layer[2*r+1,2*c] + next_layer[2*r+1,2*c+1]
-    	# Apply weight
-    	if(l>0):
-    		current_layer /= 2
-    	# Save data
-    	hist_all = np.append(np.reshape(current_layer,2**(2*l)*K),hist_all)
-#    	print("sum({}x{}): {}".format(current_layer.shape[0],current_layer.shape[1],np.sum(current_layer)))
-    	# update next layer
-    	next_layer = current_layer
+        current_layer = np.zeros([2**l,2**l,K])
+        # Calculate current layer without weight
+        for r in range(current_layer.shape[0]):
+            for c in range(current_layer.shape[1]):
+                current_layer[r,c] = next_layer[2*r,2*c] + next_layer[2*r,2*c+1] + next_layer[2*r+1,2*c] + next_layer[2*r+1,2*c+1]
+        # Apply weight
+        if(l>0):
+            current_layer /= 2
+        # Save data
+        hist_all = np.append(np.reshape(current_layer,2**(2*l)*K),hist_all)
+#        print("sum({}x{}): {}".format(current_layer.shape[0],current_layer.shape[1],np.sum(current_layer)))
+        # update next layer
+        next_layer = current_layer
 #    print("Final hist shape, sum: {}; {}".format(hist_all.shape,np.sum(hist_all)))
     return hist_all
 
@@ -146,7 +146,7 @@ def build_recognition_system(opts, n_worker=1):
         p.join()
     # Unpack output
     for i in range(0,len(proc_output)):
-    	features[i,:] = proc_output[i]
+        features[i,:] = proc_output[i]
     # Get SPM layer number
     SPM_layer_num = opts.L+1
 
@@ -205,21 +205,30 @@ def evaluate_recognition_system(opts, n_worker=1):
     # 8 categories: aquarium, desert, highway, kitchen, laundromat, park, waterfall, windmill
     num_categories = 8
     C = np.zeros([num_categories, num_categories])
-    
     # Iterate through test images, make prediction, update C
     for i,test_file in enumerate(test_files):
-    	# Get image and its feature
-    	img_path = join(opts.data_dir, test_file)
-    	feature = get_image_feature(opts,img_path,dictionary)
-    	# Get prediction and actual
-    	distances = distance_to_set(feature, training_features)
-    	predicted = training_labels[np.argmin(distances)]
-    	actual = test_labels[i]
-    	# Update confusion matrix
-    	C[actual,predicted] += 1
-    	# Debug: print progress
-#    	print("Testing {}/{}, {}% ({}/{})".format(i+1,len(test_files),
-#    	100*np.trace(C)/np.sum(C),int(np.trace(C)),int(np.sum(C))))
+        # Get image and its feature
+        img_path = join(opts.data_dir, test_file)
+        feature = get_image_feature(opts,img_path,dictionary)
+        # Get prediction and actual
+        distances = distance_to_set(feature, training_features)
+        # Check 10 minium distances
+        tally = np.zeros(num_categories)
+        for j in range(0,10):
+            # Get index of minimum
+            min_ind = np.argmin(distances)
+            # Get classification of that index, update tally, set minimum to inf
+            min_class = training_labels[min_ind]
+            tally[min_class] += 1
+            distances[min_ind] = float('inf')
+        # Prediction is index of maximum in tally
+        predicted = np.argmax(tally)
+        actual = test_labels[i]
+        # Update confusion matrix
+        C[actual,predicted] += 1
+        # Debug: print progress
+#        print("Testing {}/{}, {}% ({}/{})".format(i+1,len(test_files),
+#        100*np.trace(C)/np.sum(C),int(np.trace(C)),int(np.sum(C))))
     # Accuracy: tr(C)/sum(C)
     accuracy = np.trace(C)/np.sum(C)
     print("\nFinal: {}% ({}/{})".format(100*np.trace(C)/np.sum(C),
