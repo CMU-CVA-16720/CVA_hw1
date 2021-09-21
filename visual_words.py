@@ -107,6 +107,8 @@ def compute_dictionary(opts, n_worker=1):
     # Get filter responses
     with multiprocessing.Pool() as p:
         p.starmap(compute_dictionary_one_image, arg_list)
+        p.close()
+        p.join()
     # Read temporary files to matrix
     for ind,img_path in enumerate(train_files):
         file_name = img_path.replace('.','_').replace('/','_')+'.npy'

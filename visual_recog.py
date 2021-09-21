@@ -142,6 +142,8 @@ def build_recognition_system(opts, n_worker=1):
         arg_list.append((opts,img_path,dictionary))
     with multiprocessing.Pool() as p:
         proc_output = p.starmap(get_image_feature,arg_list)
+        p.close()
+        p.join()
     # Unpack output
     for i in range(0,len(proc_output)):
     	features[i,:] = proc_output[i]
