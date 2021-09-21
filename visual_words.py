@@ -51,17 +51,28 @@ def extract_filter_responses(opts, img):
         filter_responses[:,:,cursor:cursor+3] = scipy.ndimage.gaussian_filter(img,(sigma,sigma,0),[1,0,0],mode=mode)
     return filter_responses
 
-def compute_dictionary_one_image(img,opts):
+def compute_dictionary_one_image(img_path,opts):
     '''
     Extracts a random subset of filter responses of an image and save it to disk
     This is a worker function called by compute_dictionary
 
     Your are free to make your own interface based on how you implement compute_dictionary
     '''
+    # Set output file name
+    out_name = img_path.replace('.','_').replace('/','_')
+    # Get data and output directory
+    data_dir = opts.data_dir
+    out_dir = opts.out_dir
+    # Prepend data directory
+    img_path = data_dir+"/"+img_path
+    img = Image.open(img_path)
+    img = np.array(img).astype(np.float32)/255
     alpha = opts.alpha
     rand_rows = np.random.randint(0, img.shape[0],alpha)
     rand_cols = np.random.randint(0, img.shape[1],alpha)
     response = extract_filter_responses(opts,img)
+    # Save response to file
+    np.save(join(out_dir, out_name), response[rand_rows,rand_cols,:])
     return response[rand_rows,rand_cols,:]
 
 def compute_dictionary(opts, n_worker=1):
@@ -90,13 +101,13 @@ def compute_dictionary(opts, n_worker=1):
     # Create array to hold all filter responses (sample size * # sample images) x (3F)
     filter_responses = np.zeros([alpha * len(train_files), 3*4*len(opts.filter_scales)])
     for ind,img_path in enumerate(train_files):
-        # Prepend data directory
-        img_path = data_dir+"/"+img_path
-#        print("Dictionary {}/{}: {}".format(ind+1,len(train_files),img_path))
-        img = Image.open(img_path)
-        img = np.array(img).astype(np.float32)/255
         # helper fills filter_responses[ind*alpha:(ind+1)*alpha-1,:]
-        filter_responses[ind*alpha:(ind+1)*alpha,:] = compute_dictionary_one_image(img,opts)
+        filter_responses[ind*alpha:(ind+1)*alpha,:] = compute_dictionary_one_image(img_path,opts)
+    # Read temporary files to matrix
+    for ind,img_path in enumerate(train_files):
+        file_name = img_path.replace('.','_').replace('/','_')+'.npy'
+        temp_array = np.load(join(out_dir, file_name))
+        filter_responses[ind*alpha:(ind+1)*alpha,:] = temp_array
     # Compute k-means
     kmeans = KMeans(n_clusters=K,n_jobs=n_worker,n_init=100).fit(filter_responses)
     dictionary = kmeans.cluster_centers_
