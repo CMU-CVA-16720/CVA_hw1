@@ -100,14 +100,21 @@ def compute_dictionary(opts, n_worker=1):
 #    train_files = open(join(data_dir, 'train_files_lite.txt')).read().splitlines()
     # Create array to hold all filter responses (sample size * # sample images) x (3F)
     filter_responses = np.zeros([alpha * len(train_files), 3*4*len(opts.filter_scales)])
+    # Prepare arg list
+    arg_list = []
     for ind,img_path in enumerate(train_files):
-        # helper fills filter_responses[ind*alpha:(ind+1)*alpha-1,:]
-        compute_dictionary_one_image(img_path,opts)
+        arg_list.append((img_path,opts))
+    # Get filter responses
+    with multiprocessing.Pool() as p:
+        p.starmap(compute_dictionary_one_image, arg_list)
+        p.close()
+        p.join()
     # Read temporary files to matrix
     for ind,img_path in enumerate(train_files):
         file_name = img_path.replace('.','_').replace('/','_')+'.npy'
         temp_array = np.load(join(out_dir, file_name))
         filter_responses[ind*alpha:(ind+1)*alpha,:] = temp_array
+        # Delete file after using
         os.remove(file_name)
     # Compute k-means
     kmeans = KMeans(n_clusters=K,n_jobs=n_worker,n_init=100).fit(filter_responses)

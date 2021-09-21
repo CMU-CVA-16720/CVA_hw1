@@ -135,12 +135,18 @@ def build_recognition_system(opts, n_worker=1):
     
     # Get features for training data
     features = np.zeros([len(train_files),int(opts.K*(4**(opts.L+1)-1)/3)])
-    for i,train_file in enumerate(train_files):
-    	# Debug: print progress
-#    	print("Training {}/{}".format(i+1,len(train_files)))
-    	# Get image path, then compute feature
-    	img_path = join(opts.data_dir, train_file)
-    	features[i,:] = get_image_feature(opts,img_path,dictionary)
+    # Prepare arg list
+    arg_list = []
+    for train_file in train_files:
+        img_path = join(data_dir, train_file)
+        arg_list.append((opts,img_path,dictionary))
+    with multiprocessing.Pool() as p:
+        proc_output = p.starmap(get_image_feature,arg_list)
+        p.close()
+        p.join()
+    # Unpack output
+    for i in range(0,len(proc_output)):
+    	features[i,:] = proc_output[i]
     # Get SPM layer number
     SPM_layer_num = opts.L+1
 
