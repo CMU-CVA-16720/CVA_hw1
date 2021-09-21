@@ -68,8 +68,14 @@ def compute_dictionary_one_image(img_path,opts):
     img = Image.open(img_path)
     img = np.array(img).astype(np.float32)/255
     alpha = opts.alpha
-    rand_rows = np.random.randint(0, img.shape[0],alpha)
-    rand_cols = np.random.randint(0, img.shape[1],alpha)
+    # Use gaussian distribution for sampling
+    rand_rows = (np.random.normal((img.shape[0]-1)/2, img.shape[0]/6,alpha)).astype(int)
+    rand_cols = (np.random.normal((img.shape[1]-1)/2, img.shape[1]/6,alpha)).astype(int)
+    # Make sure rows and cols are valid
+    rand_rows[rand_rows >= img.shape[0]] = img.shape[0]-1
+    rand_rows[rand_rows < 0] = 0
+    rand_cols[rand_cols >= img.shape[1]] = img.shape[1]-1
+    rand_cols[rand_cols < 0] = 0
     response = extract_filter_responses(opts,img)
     # Save response to file
     np.save(join(out_dir, out_name), response[rand_rows,rand_cols,:])
