@@ -102,12 +102,13 @@ def compute_dictionary(opts, n_worker=1):
     filter_responses = np.zeros([alpha * len(train_files), 3*4*len(opts.filter_scales)])
     for ind,img_path in enumerate(train_files):
         # helper fills filter_responses[ind*alpha:(ind+1)*alpha-1,:]
-        filter_responses[ind*alpha:(ind+1)*alpha,:] = compute_dictionary_one_image(img_path,opts)
+        compute_dictionary_one_image(img_path,opts)
     # Read temporary files to matrix
     for ind,img_path in enumerate(train_files):
         file_name = img_path.replace('.','_').replace('/','_')+'.npy'
         temp_array = np.load(join(out_dir, file_name))
         filter_responses[ind*alpha:(ind+1)*alpha,:] = temp_array
+        os.remove(file_name)
     # Compute k-means
     kmeans = KMeans(n_clusters=K,n_jobs=n_worker,n_init=100).fit(filter_responses)
     dictionary = kmeans.cluster_centers_
