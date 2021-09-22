@@ -94,7 +94,7 @@ def compute_dictionary(opts, n_worker=1):
     alpha = opts.alpha
 
     # Seed for consistent random rows + cols, for repeatability to tune hyperparameters
-    np.random.seed(0)
+#    np.random.seed(0)
 
     train_files = open(join(data_dir, 'train_files.txt')).read().splitlines()
 #    train_files = open(join(data_dir, 'train_files_lite.txt')).read().splitlines()
