@@ -231,8 +231,8 @@ def evaluate_recognition_system(opts, n_worker=1):
 #        100*np.trace(C)/np.sum(C),int(np.trace(C)),int(np.sum(C))))
     # Accuracy: tr(C)/sum(C)
     accuracy = np.trace(C)/np.sum(C)
-    print("\nFinal: {}% ({}/{})".format(100*np.trace(C)/np.sum(C),
-    int(np.trace(C)),int(np.sum(C))))
+#    print("\nFinal: {}% ({}/{})".format(100*np.trace(C)/np.sum(C),
+#    int(np.trace(C)),int(np.sum(C))))
     
     return C, accuracy
     
