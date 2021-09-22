@@ -392,6 +392,8 @@ def main():
     conf, accuracy = evaluate_recognition_system(opts, n_worker=n_cpu)
     print("Confustion matrix:\n{}".format(conf))
     print("Accuracy: {}%".format(accuracy*100))
+    np.savetxt(join(opts.out_dir, 'confmat.csv'), conf, fmt='%d', delimiter=',')
+    np.savetxt(join(opts.out_dir, 'accuracy.txt'), [accuracy], fmt='%g')
 
 
 if __name__ == '__main__':
