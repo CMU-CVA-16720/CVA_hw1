@@ -212,17 +212,7 @@ def evaluate_recognition_system(opts, n_worker=1):
         feature = get_image_feature(opts,img_path,dictionary)
         # Get prediction and actual
         distances = distance_to_set(feature, training_features)
-        # Check 10 minium distances
-        tally = np.zeros(num_categories)
-        for j in range(0,10):
-            # Get index of minimum
-            min_ind = np.argmin(distances)
-            # Get classification of that index, update tally, set minimum to inf
-            min_class = training_labels[min_ind]
-            tally[min_class] += 1
-            distances[min_ind] = float('inf')
-        # Prediction is index of maximum in tally
-        predicted = np.argmax(tally)
+        predicted = training_labels[np.argmin(distances)]
         actual = test_labels[i]
         # Update confusion matrix
         C[actual,predicted] += 1
