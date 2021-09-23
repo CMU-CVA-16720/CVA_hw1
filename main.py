@@ -41,8 +41,8 @@ def main():
     ## Q2.5
     conf, accuracy = visual_recog.evaluate_recognition_system(opts, n_worker=n_cpu)
     
-    print("Confusion matrix:\n{}".format(conf))
-    print("Accuracy: {}%".format(100*accuracy))
+    print(conf)
+    print(accuracy)
     np.savetxt(join(opts.out_dir, 'confmat.csv'), conf, fmt='%d', delimiter=',')
     np.savetxt(join(opts.out_dir, 'accuracy.txt'), [accuracy], fmt='%g')
 
