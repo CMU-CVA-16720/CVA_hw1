@@ -32,7 +32,7 @@ def main():
     img = np.array(img).astype(np.float32)/255
     dictionary = np.load(join(opts.out_dir, 'dictionary.npy'))
     wordmap = visual_words.get_visual_words(opts, img, dictionary)
-    util.visualize_wordmap(wordmap)
+#    util.visualize_wordmap(wordmap)
 
     ## Q2.1-2.4
     n_cpu = util.get_num_CPU()
@@ -45,6 +45,8 @@ def main():
     print("Accuracy: {}%".format(100*accuracy))
     np.savetxt(join(opts.out_dir, 'confmat.csv'), conf, fmt='%d', delimiter=',')
     np.savetxt(join(opts.out_dir, 'accuracy.txt'), [accuracy], fmt='%g')
+
+    util.visualize_wordmap(wordmap)
 
 
 if __name__ == '__main__':

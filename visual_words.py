@@ -68,12 +68,12 @@ def compute_dictionary_one_image(img_path,opts):
     img = Image.open(img_path)
     img = np.array(img).astype(np.float32)/255
     alpha = opts.alpha
-    # Randomly sample rows and columns
     rand_rows = np.random.randint(0, img.shape[0],alpha)
     rand_cols = np.random.randint(0, img.shape[1],alpha)
     response = extract_filter_responses(opts,img)
     # Save response to file
     np.save(join(out_dir, out_name), response[rand_rows,rand_cols,:])
+#    return response[rand_rows,rand_cols,:]
 
 def compute_dictionary(opts, n_worker=1):
     '''
